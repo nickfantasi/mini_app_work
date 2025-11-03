@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Time Tracker</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .menu-btn {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .menu-btn .icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .menu-btn .text {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Главное меню -->
+        <div id="main-menu">
+            <div class="header">
+                <h1>⏱ Work Tracker</h1>
+                <p>Учет рабочего времени</p>
+            </div>
+            
+            <div class="menu-grid">
+                <div class="menu-btn" onclick="showSection('add-hours')">
+                    <div class="icon">⏱</div>
+                    <div class="text">Добавить часы</div>
+                </div>
+                
+                <div class="menu-btn" onclick="showSection('stats')">
+                    <div class="icon">📊</div>
+                    <div class="text">Статистика</div>
+                </div>
+                
+                <div class="menu-btn" onclick="showSection('objects')">
+                    <div class="icon">🏗</div>
+                    <div class="text">Объекты</div>
+                </div>
+                
+                <div class="menu-btn" onclick="showSection('notes')">
+                    <div class="icon">📝</div>
+                    <div class="text">Заметки</div>
+                </div>
+                
+                <div class="menu-btn" onclick="sendData('get_report')">
+                    <div class="icon">📄</div>
+                    <div class="text">Отчет</div>
+                </div>
+                
+                <div class="menu-btn" onclick="sendData('get_salary')">
+                    <div class="icon">💵</div>
+                    <div class="text">Зарплата</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Добавление часов -->
+        <div id="add-hours" class="section hidden">
+            <button class="btn back-btn" onclick="showSection('main-menu')">← Назад</button>
+            <h2>⏱ Добавить часы работы</h2>
+            
+            <div class="form-group">
+                <label>Объект:</label>
+                <select id="object-select" class="form-control">
+                    <option value="">Загрузка...</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Дата:</label>
+                <input type="date" id="work-date" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+            </div>
+            
+            <div class="form-group">
+                <label>Количество часов:</label>
+                <input type="number" id="work-hours" class="form-control" step="0.5" min="0.5" max="24" placeholder="Например: 8.5">
+            </div>
+            
+            <button class="btn" onclick="addWorkHours()">💾 Сохранить</button>
+        </div>
+
+        <!-- Статистика -->
+        <div id="stats" class="section hidden">
+            <button class="btn back-btn" onclick="showSection('main-menu')">← Назад</button>
+            <h2>📊 Статистика</h2>
+            <div id="stats-content">
+                <div class="loading">Загрузка...</div>
+            </div>
+        </div>
+
+        <!-- Объекты -->
+        <div id="objects" class="section hidden">
+            <button class="btn back-btn" onclick="showSection('main-menu')">← Назад</button>
+            <h2>🏗 Мои объекты</h2>
+            <div id="objects-content">
+                <div class="loading">Загрузка...</div>
+            </div>
+        </div>
+
+        <!-- Заметки -->
+        <div id="notes" class="section hidden">
+            <button class="btn back-btn" onclick="showSection('main-menu')">← Назад</button>
+            <h2>📝 Заметки</h2>
+            
+            <div class="form-group">
+                <label>Текст заметки:</label>
+                <textarea id="note-text" class="form-control" rows="3" placeholder="Введите текст заметки..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Дата:</label>
+                <input type="date" id="note-date" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+            </div>
+            
+            <button class="btn" onclick="addNote()">💾 Добавить заметку</button>
+            
+            <div id="notes-list" style="margin-top: 20px;">
+                <div class="loading">Загрузка заметок...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        // Функция отправки данных в бота
+        function sendData(action, data = {}) {
+            const payload = {
+                action: action,
+                ...data
+            };
+            
+            tg.sendData(JSON.stringify(payload));
+        }
+
+        // Навигация по разделам
+        function showSection(sectionId) {
+            document.querySelectorAll('.section, #main-menu').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Загружаем данные при переходе в раздел
+            if (sectionId === 'stats') {
+                loadStats();
+            } else if (sectionId === 'objects') {
+                loadObjects();
+            } else if (sectionId === 'notes') {
+                loadNotes();
+            } else if (sectionId === 'add-hours') {
+                loadObjectsForSelect();
+            }
+        }
+
+        // Загрузка объектов для выпадающего списка
+        function loadObjectsForSelect() {
+            const select = document.getElementById('object-select');
+            select.innerHTML = '<option value="">Загрузка...</option>';
+            
+            sendData('get_objects');
+        }
+
+        // Загрузка статистики
+        function loadStats() {
+            sendData('get_stats');
+        }
+
+        // Загрузка объектов
+        function loadObjects() {
+            sendData('get_objects');
+        }
+
+        // Загрузка заметок
+        function loadNotes() {
+            sendData('get_notes');
+        }
+
+        // Добавление часов работы
+        function addWorkHours() {
+            const objectId = document.getElementById('object-select').value;
+            const date = document.getElementById('work-date').value;
+            const hours = document.getElementById('work-hours').value;
+            
+            if (!objectId || !date || !hours) {
+                showMessage('error', 'Заполните все поля');
+                return;
+            }
+            
+            if (parseFloat(hours) <= 0) {
+                showMessage('error', 'Введите корректное количество часов');
+                return;
+            }
+            
+            sendData('add_hours', {
+                object_id: parseInt(objectId),
+                date: date,
+                hours: parseFloat(hours)
+            });
+            
+            // Очищаем форму
+            document.getElementById('work-hours').value = '';
+            showMessage('success', 'Часы отправлены на сохранение');
+        }
+
+        // Добавление заметки
+        function addNote() {
+            const text = document.getElementById('note-text').value;
+            const date = document.getElementById('note-date').value;
+            
+            if (!text.trim()) {
+                showMessage('error', 'Введите текст заметки');
+                return;
+            }
+            
+            sendData('add_note', {
+                text: text.trim(),
+                date: date
+            });
+            
+            // Очищаем форму
+            document.getElementById('note-text').value = '';
+            showMessage('success', 'Заметка отправлена на сохранение');
+        }
+
+        // Показ сообщений
+        function showMessage(type, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = text;
+            
+            const currentSection = document.querySelector('.section:not(.hidden)');
+            currentSection.insertBefore(messageDiv, currentSection.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        // Обработчик входящих сообщений от бота
+        tg.onEvent('viewportChanged', (event) => {
+            // Можно добавить обработку изменений viewport
+        });
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            // Загружаем объекты при старте
+            loadObjectsForSelect();
+        });
+    </script>
+</body>
+</html>
