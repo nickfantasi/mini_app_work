@@ -182,6 +182,32 @@
             margin-bottom: 15px;
             text-align: center;
         }
+
+        .object-list {
+            margin-top: 15px;
+        }
+
+        .object-item {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+        }
+
+        .note-item {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+        }
+
+        .note-date {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -214,12 +240,12 @@
                     <div class="text">Заметки</div>
                 </div>
                 
-                <div class="menu-btn" onclick="sendData('get_report')">
+                <div class="menu-btn" onclick="showSection('report')">
                     <div class="icon">📄</div>
                     <div class="text">Отчет</div>
                 </div>
                 
-                <div class="menu-btn" onclick="sendData('get_salary')">
+                <div class="menu-btn" onclick="showSection('salary')">
                     <div class="icon">💵</div>
                     <div class="text">Зарплата</div>
                 </div>
@@ -240,7 +266,7 @@
             
             <div class="form-group">
                 <label>Дата:</label>
-                <input type="date" id="work-date" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+                <input type="date" id="work-date" class="form-control">
             </div>
             
             <div class="form-group">
@@ -256,8 +282,9 @@
             <button class="btn back-btn" onclick="showSection('main-menu')">← Назад</button>
             <h2>📊 Статистика</h2>
             <div id="stats-content">
-                <div class="loading">Загрузка...</div>
+                <div class="loading">Нажмите кнопку для загрузки статистики</div>
             </div>
+            <button class="btn" onclick="loadStats()">🔄 Загрузить статистику</button>
         </div>
 
         <!-- Объекты -->
@@ -265,8 +292,9 @@
             <button class="btn back-btn" onclick="showSection('main-menu')">← Назад</button>
             <h2>🏗 Мои объекты</h2>
             <div id="objects-content">
-                <div class="loading">Загрузка...</div>
+                <div class="loading">Нажмите кнопку для загрузки объектов</div>
             </div>
+            <button class="btn" onclick="loadObjects()">🔄 Загрузить объекты</button>
         </div>
 
         <!-- Заметки -->
@@ -281,14 +309,34 @@
             
             <div class="form-group">
                 <label>Дата:</label>
-                <input type="date" id="note-date" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+                <input type="date" id="note-date" class="form-control">
             </div>
             
             <button class="btn" onclick="addNote()">💾 Добавить заметку</button>
             
-            <div id="notes-list" style="margin-top: 20px;">
-                <div class="loading">Загрузка заметок...</div>
+            <div style="margin-top: 20px;">
+                <h3>Последние заметки:</h3>
+                <div id="notes-list">
+                    <div class="loading">Нажмите кнопку для загрузки заметок</div>
+                </div>
+                <button class="btn" onclick="loadNotes()" style="margin-top: 10px;">🔄 Загрузить заметки</button>
             </div>
+        </div>
+
+        <!-- Отчет -->
+        <div id="report" class="section hidden">
+            <button class="btn back-btn" onclick="showSection('main-menu')">← Назад</button>
+            <h2>📄 Отчет</h2>
+            <p>Для получения отчета нажмите кнопку ниже. Отчет будет отправлен вам в чат с ботом.</p>
+            <button class="btn" onclick="requestReport()">📊 Получить отчет</button>
+        </div>
+
+        <!-- Зарплата -->
+        <div id="salary" class="section hidden">
+            <button class="btn back-btn" onclick="showSection('main-menu')">← Назад</button>
+            <h2>💵 Зарплата</h2>
+            <p>Информация о зарплате будет отображена здесь.</p>
+            <button class="btn" onclick="loadSalary()">🔄 Загрузить данные</button>
         </div>
     </div>
 
@@ -299,6 +347,16 @@
         tg.expand();
         tg.ready();
 
+        // Устанавливаем сегодняшнюю дату по умолчанию
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('work-date').value = today;
+            document.getElementById('note-date').value = today;
+            
+            // Загружаем объекты при старте
+            loadObjectsForSelect();
+        });
+
         // Функция отправки данных в бота
         function sendData(action, data = {}) {
             const payload = {
@@ -306,7 +364,11 @@
                 ...data
             };
             
+            console.log('Отправка данных:', payload);
             tg.sendData(JSON.stringify(payload));
+            
+            // Показываем сообщение об успехе
+            showMessage('success', 'Данные отправлены! Проверьте чат с ботом.');
         }
 
         // Навигация по разделам
@@ -315,17 +377,6 @@
                 el.classList.add('hidden');
             });
             document.getElementById(sectionId).classList.remove('hidden');
-            
-            // Загружаем данные при переходе в раздел
-            if (sectionId === 'stats') {
-                loadStats();
-            } else if (sectionId === 'objects') {
-                loadObjects();
-            } else if (sectionId === 'notes') {
-                loadNotes();
-            } else if (sectionId === 'add-hours') {
-                loadObjectsForSelect();
-            }
         }
 
         // Загрузка объектов для выпадающего списка
@@ -333,22 +384,106 @@
             const select = document.getElementById('object-select');
             select.innerHTML = '<option value="">Загрузка...</option>';
             
-            sendData('get_objects');
+            // В реальном приложении здесь был бы запрос к боту
+            // Для демо просто покажем сообщение
+            setTimeout(() => {
+                select.innerHTML = `
+                    <option value="">Выберите объект</option>
+                    <option value="1">Объект 1 (500 руб/ч)</option>
+                    <option value="2">Объект 2 (600 руб/ч)</option>
+                    <option value="3">Объект 3 (700 руб/ч)</option>
+                `;
+            }, 1000);
         }
 
         // Загрузка статистики
         function loadStats() {
-            sendData('get_stats');
+            const statsContent = document.getElementById('stats-content');
+            statsContent.innerHTML = '<div class="loading">Загрузка статистики...</div>';
+            
+            // Демо данные
+            setTimeout(() => {
+                statsContent.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">Объекта</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">15</div>
+                            <div class="stat-label">Смен</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">120.5</div>
+                            <div class="stat-label">Часов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">75,250 ₽</div>
+                            <div class="stat-label">Заработано</div>
+                        </div>
+                    </div>
+                    <p>Для получения актуальной статистики отправьте запрос боту:</p>
+                    <button class="btn" onclick="sendData('get_stats')">📊 Получить статистику</button>
+                `;
+            }, 1500);
         }
 
         // Загрузка объектов
         function loadObjects() {
-            sendData('get_objects');
+            const objectsContent = document.getElementById('objects-content');
+            objectsContent.innerHTML = '<div class="loading">Загрузка объектов...</div>';
+            
+            // Демо данные
+            setTimeout(() => {
+                objectsContent.innerHTML = `
+                    <div class="object-list">
+                        <div class="object-item">
+                            <strong>Объект 1</strong><br>
+                            Ставка: 500 руб/час
+                        </div>
+                        <div class="object-item">
+                            <strong>Объект 2</strong><br>
+                            Ставка: 600 руб/час
+                        </div>
+                        <div class="object-item">
+                            <strong>Объект 3</strong><br>
+                            Ставка: 700 руб/час
+                        </div>
+                    </div>
+                    <p style="margin-top: 15px;">Для получения актуального списка объектов:</p>
+                    <button class="btn" onclick="sendData('get_objects')">🏗 Получить объекты</button>
+                `;
+            }, 1500);
         }
 
         // Загрузка заметок
         function loadNotes() {
-            sendData('get_notes');
+            const notesList = document.getElementById('notes-list');
+            notesList.innerHTML = '<div class="loading">Загрузка заметок...</div>';
+            
+            // Демо данные
+            setTimeout(() => {
+                notesList.innerHTML = `
+                    <div class="note-item">
+                        <div class="note-date">01.11.2024</div>
+                        <div>Заметка о проделанной работе</div>
+                    </div>
+                    <div class="note-item">
+                        <div class="note-date">31.10.2024</div>
+                        <div>Важная информация по проекту</div>
+                    </div>
+                `;
+            }, 1500);
+        }
+
+        // Загрузка зарплаты
+        function loadSalary() {
+            sendData('get_salary');
+        }
+
+        // Запрос отчета
+        function requestReport() {
+            sendData('get_report');
         }
 
         // Добавление часов работы
@@ -375,7 +510,6 @@
             
             // Очищаем форму
             document.getElementById('work-hours').value = '';
-            showMessage('success', 'Часы отправлены на сохранение');
         }
 
         // Добавление заметки
@@ -395,7 +529,6 @@
             
             // Очищаем форму
             document.getElementById('note-text').value = '';
-            showMessage('success', 'Заметка отправлена на сохранение');
         }
 
         // Показ сообщений
@@ -408,20 +541,11 @@
             currentSection.insertBefore(messageDiv, currentSection.firstChild);
             
             setTimeout(() => {
-                messageDiv.remove();
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
             }, 3000);
         }
-
-        // Обработчик входящих сообщений от бота
-        tg.onEvent('viewportChanged', (event) => {
-            // Можно добавить обработку изменений viewport
-        });
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            // Загружаем объекты при старте
-            loadObjectsForSelect();
-        });
     </script>
 </body>
 </html>
