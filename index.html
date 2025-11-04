@@ -454,22 +454,23 @@
             }
         }
 
-        // Функция отправки данных в бота
-        function sendDataToBot(action, data = {}) {
-            const payload = {
-                action: action,
-                ...data,
-                timestamp: new Date().toISOString()
-            };
-            
-            console.log('Отправляем данные боту:', payload);
-            
-            // Отправляем данные через Telegram Web App
-            tg.sendData(JSON.stringify(payload));
-            
-            // Показываем сообщение об успехе
-            showMessage('success', '✅ Данные отправлены! Проверьте чат с ботом.');
-        }
+// ЗАМЕНИТЕ эту функцию:
+function sendDataToBot(action, data = {}) {
+    const payload = {
+        action: action,
+        ...data,
+        timestamp: new Date().toISOString()
+    };
+    
+    console.log('Отправляем данные боту:', payload);
+    
+    // ОТПРАВЛЯЕМ ДАННЫЕ ТОЛЬКО КОГДА ПОЛЬЗОВАТЕЛЬ ЯВНО ЭТО ДЕЛАЕТ
+    // (при добавлении работы, заметки и т.д.)
+    tg.sendData(JSON.stringify(payload));
+    
+    // НЕ показываем сообщение об успехе - приложение закроется
+    // showMessage('success', '✅ Данные отправлены! Проверьте чат с ботом.');
+}
 
         // Загрузка объектов для выпадающего списка
         function loadObjectsForSelect() {
