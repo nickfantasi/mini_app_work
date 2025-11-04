@@ -176,18 +176,10 @@
             border: 1px solid #f5c6cb;
         }
         
-        .demo-data {
+        .info {
             background: #e7f3ff;
             color: #004085;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border-left: 4px solid #007bff;
-        }
-        
-        .back-btn {
-            background: #6c757d;
-            margin-bottom: 15px;
+            border: 1px solid #b3d7ff;
         }
         
         .stats-grid {
@@ -216,6 +208,28 @@
             font-size: 12px;
             color: #666;
         }
+        
+        .data-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .note-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .note-date {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -225,6 +239,9 @@
             <div class="header">
                 <h1>⏱ Work Tracker</h1>
                 <p>Учет рабочего времени</p>
+                <div id="user-info" class="message info" style="margin-top: 15px; display: none;">
+                    Загрузка данных...
+                </div>
             </div>
             
             <div class="menu-grid">
@@ -258,6 +275,10 @@
                     <span class="text">Отчет</span>
                 </button>
             </div>
+            
+            <button class="btn" onclick="loadRealData()" style="margin-top: 20px;">
+                🔄 Загрузить реальные данные
+            </button>
         </div>
 
         <!-- Добавление работы -->
@@ -265,18 +286,10 @@
             <button class="btn btn-secondary" onclick="showSection('main-menu')">← Назад</button>
             <h2>⏱ Добавить работу</h2>
             
-            <div class="demo-data">
-                📝 <strong>Демо-режим</strong><br>
-                Данные будут отправлены боту
-            </div>
-            
             <div class="form-group">
                 <label>Объект:</label>
                 <select class="form-control" id="work-object">
-                    <option value="">Выберите объект</option>
-                    <option value="1">🏗 Строительство дома (500 руб/ч)</option>
-                    <option value="2">🔧 Ремонт офиса (600 руб/ч)</option>
-                    <option value="3">🏢 Отделка квартиры (700 руб/ч)</option>
+                    <option value="">Загрузка объектов...</option>
                 </select>
             </div>
             
@@ -298,31 +311,11 @@
             <button class="btn btn-secondary" onclick="showSection('main-menu')">← Назад</button>
             <h2>📊 Статистика</h2>
             
-            <div class="demo-data">
-                📊 <strong>Демо-статистика</strong><br>
-                Нажмите кнопку для реальных данных
+            <div id="stats-content">
+                <div class="loading">Загрузка статистики...</div>
             </div>
             
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">3</div>
-                    <div class="stat-label">Объекта</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">15</div>
-                    <div class="stat-label">Смен</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">120.5</div>
-                    <div class="stat-label">Часов</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">75,250 ₽</div>
-                    <div class="stat-label">Заработано</div>
-                </div>
-            </div>
-            
-            <button class="btn" onclick="getRealStats()">🔄 Получить актуальную статистику</button>
+            <button class="btn" onclick="loadStats()">🔄 Обновить статистику</button>
         </div>
 
         <!-- Объекты -->
@@ -330,38 +323,17 @@
             <button class="btn btn-secondary" onclick="showSection('main-menu')">← Назад</button>
             <h2>🏗 Мои объекты</h2>
             
-            <div class="demo-data">
-                🏗 <strong>Демо-объекты</strong><br>
-                Нажмите кнопку для реальных данных
+            <div id="objects-content">
+                <div class="loading">Загрузка объектов...</div>
             </div>
             
-            <div style="margin: 20px 0;">
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                    <strong>🏗 Строительство дома</strong><br>
-                    Ставка: 500 руб/час
-                </div>
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                    <strong>🔧 Ремонт офиса</strong><br>
-                    Ставка: 600 руб/час
-                </div>
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                    <strong>🏢 Отделка квартиры</strong><br>
-                    Ставка: 700 руб/час
-                </div>
-            </div>
-            
-            <button class="btn" onclick="getRealObjects()">🔄 Получить актуальные объекты</button>
+            <button class="btn" onclick="loadObjects()">🔄 Обновить объекты</button>
         </div>
 
         <!-- Заметки -->
         <div id="notes" class="section hidden">
             <button class="btn btn-secondary" onclick="showSection('main-menu')">← Назад</button>
             <h2>📝 Заметки</h2>
-            
-            <div class="demo-data">
-                📝 <strong>Демо-заметки</strong><br>
-                Нажмите кнопку для реальных данных
-            </div>
             
             <div class="form-group">
                 <label>Текст заметки:</label>
@@ -377,17 +349,12 @@
             
             <div style="margin-top: 25px;">
                 <h3 style="margin-bottom: 15px;">Последние заметки:</h3>
-                <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
-                    <small style="color: #666;">01.11.2024</small><br>
-                    Заметка о проделанной работе на объекте
-                </div>
-                <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px;">
-                    <small style="color: #666;">31.10.2024</small><br>
-                    Важная информация по проекту
+                <div id="notes-content">
+                    <div class="loading">Загрузка заметок...</div>
                 </div>
             </div>
             
-            <button class="btn" onclick="getRealNotes()" style="margin-top: 15px;">🔄 Получить актуальные заметки</button>
+            <button class="btn" onclick="loadNotes()" style="margin-top: 15px;">🔄 Обновить заметки</button>
         </div>
 
         <!-- Зарплата -->
@@ -395,27 +362,11 @@
             <button class="btn btn-secondary" onclick="showSection('main-menu')">← Назад</button>
             <h2>💵 Зарплата</h2>
             
-            <div class="demo-data">
-                💵 <strong>Демо-данные</strong><br>
-                Нажмите кнопку для реальных данных
+            <div id="salary-content">
+                <div class="loading">Загрузка данных...</div>
             </div>
             
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">75,250 ₽</div>
-                    <div class="stat-label">Заработано</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">50,000 ₽</div>
-                    <div class="stat-label">Получено</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">25,250 ₽</div>
-                    <div class="stat-label">Остаток</div>
-                </div>
-            </div>
-            
-            <button class="btn" onclick="getRealSalary()">🔄 Получить актуальные данные</button>
+            <button class="btn" onclick="loadSalary()">🔄 Обновить данные</button>
         </div>
 
         <!-- Отчет -->
@@ -423,15 +374,9 @@
             <button class="btn btn-secondary" onclick="showSection('main-menu')">← Назад</button>
             <h2>📄 Отчет</h2>
             
-            <div class="demo-data">
-                📄 <strong>Формирование отчета</strong><br>
-                Отчет будет отправлен в чат с ботом
+            <div id="report-content">
+                <div class="loading">Формирование отчета...</div>
             </div>
-            
-            <p style="margin-bottom: 20px; text-align: center;">
-                Нажмите кнопку ниже для получения полного отчета по вашей работе.
-                Отчет будет сформирован и отправлен вам в чат с ботом.
-            </p>
             
             <button class="btn" onclick="generateReport()">📊 Сформировать отчет</button>
         </div>
@@ -448,7 +393,12 @@
         tg.expand();
         tg.ready();
         
-        console.log('Telegram Web App инициализирован');
+        // Глобальные переменные для хранения данных
+        let userData = {
+            objects: [],
+            stats: {},
+            notes: []
+        };
 
         // Устанавливаем сегодняшнюю дату по умолчанию
         document.addEventListener('DOMContentLoaded', function() {
@@ -456,13 +406,24 @@
             document.getElementById('work-date').value = today;
             document.getElementById('note-date').value = today;
             
-            showMessage('success', '🌐 Work Tracker Mini App загружен!');
+            // Загружаем начальные данные
+            loadInitialData();
         });
+
+        // Загрузка начальных данных
+        function loadInitialData() {
+            showMessage('info', '🔄 Загрузка данных...');
+            sendDataToBot('get_initial_data');
+        }
+
+        // Загрузка реальных данных
+        function loadRealData() {
+            showMessage('info', '🔄 Загрузка реальных данных...');
+            sendDataToBot('get_initial_data');
+        }
 
         // Функция показа/скрытия разделов
         function showSection(sectionId) {
-            console.log('Показываем раздел:', sectionId);
-            
             // Скрываем все разделы
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.add('hidden');
@@ -475,9 +436,21 @@
             const targetSection = document.getElementById(sectionId);
             if (targetSection) {
                 targetSection.classList.remove('hidden');
-            } else {
-                console.error('Раздел не найден:', sectionId);
-                showMessage('error', 'Раздел не найден');
+                
+                // При показе раздела загружаем соответствующие данные
+                if (sectionId === 'stats') {
+                    loadStats();
+                } else if (sectionId === 'objects') {
+                    loadObjects();
+                } else if (sectionId === 'notes') {
+                    loadNotes();
+                } else if (sectionId === 'salary') {
+                    loadSalary();
+                } else if (sectionId === 'add-work') {
+                    loadObjectsForSelect();
+                } else if (sectionId === 'report') {
+                    loadReport();
+                }
             }
         }
 
@@ -496,11 +469,190 @@
             
             // Показываем сообщение об успехе
             showMessage('success', '✅ Данные отправлены! Проверьте чат с ботом.');
+        }
+
+        // Загрузка объектов для выпадающего списка
+        function loadObjectsForSelect() {
+            const select = document.getElementById('work-object');
             
-            // Возвращаемся в главное меню через 2 секунды
-            setTimeout(() => {
-                showSection('main-menu');
-            }, 2000);
+            if (userData.objects && userData.objects.length > 0) {
+                select.innerHTML = '<option value="">Выберите объект</option>';
+                userData.objects.forEach(obj => {
+                    select.innerHTML += `<option value="${obj.id}">${obj.display_name}</option>`;
+                });
+            } else {
+                select.innerHTML = '<option value="">Нет доступных объектов</option>';
+            }
+        }
+
+        // Загрузка статистики
+        function loadStats() {
+            const statsContent = document.getElementById('stats-content');
+            
+            if (userData.stats && Object.keys(userData.stats).length > 0) {
+                const stats = userData.stats;
+                statsContent.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.object_count}</div>
+                            <div class="stat-label">Объектов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.shift_count}</div>
+                            <div class="stat-label">Смен</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.total_hours.toFixed(1)}</div>
+                            <div class="stat-label">Часов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.total_earned.toFixed(2)} ₽</div>
+                            <div class="stat-label">Заработано</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.total_received.toFixed(2)} ₽</div>
+                            <div class="stat-label">Получено</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.balance.toFixed(2)} ₽</div>
+                            <div class="stat-label">Остаток</div>
+                        </div>
+                    </div>
+                    <p style="text-align: center; margin-top: 15px; color: #666;">
+                        📅 Данные обновлены: ${new Date().toLocaleString()}
+                    </p>
+                `;
+            } else {
+                statsContent.innerHTML = '<div class="loading">Нет данных для отображения</div>';
+            }
+        }
+
+        // Загрузка объектов
+        function loadObjects() {
+            const objectsContent = document.getElementById('objects-content');
+            
+            if (userData.objects && userData.objects.length > 0) {
+                let objectsHTML = '';
+                userData.objects.forEach(obj => {
+                    objectsHTML += `
+                        <div class="data-item">
+                            <strong>${obj.name}</strong><br>
+                            Ставка: ${obj.hourly_rate} руб/час
+                        </div>
+                    `;
+                });
+                objectsContent.innerHTML = objectsHTML;
+            } else {
+                objectsContent.innerHTML = '<div class="loading">Нет объектов для отображения</div>';
+            }
+        }
+
+        // Загрузка заметок
+        function loadNotes() {
+            const notesContent = document.getElementById('notes-content');
+            
+            if (userData.notes && userData.notes.length > 0) {
+                let notesHTML = '';
+                userData.notes.forEach(note => {
+                    notesHTML += `
+                        <div class="note-item">
+                            <div class="note-date">${note.display_date}</div>
+                            <div>${note.text}</div>
+                        </div>
+                    `;
+                });
+                notesContent.innerHTML = notesHTML;
+            } else {
+                notesContent.innerHTML = '<div class="loading">Нет заметок для отображения</div>';
+            }
+        }
+
+        // Загрузка зарплаты
+        function loadSalary() {
+            const salaryContent = document.getElementById('salary-content');
+            
+            if (userData.stats && Object.keys(userData.stats).length > 0) {
+                const stats = userData.stats;
+                salaryContent.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.total_earned.toFixed(2)} ₽</div>
+                            <div class="stat-label">Заработано</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.total_received.toFixed(2)} ₽</div>
+                            <div class="stat-label">Получено</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.balance.toFixed(2)} ₽</div>
+                            <div class="stat-label">Остаток</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                salaryContent.innerHTML = '<div class="loading">Нет данных для отображения</div>';
+            }
+        }
+
+        // Загрузка отчета
+        function loadReport() {
+            const reportContent = document.getElementById('report-content');
+            reportContent.innerHTML = `
+                <div class="message info">
+                    📊 Нажмите кнопку "Сформировать отчет" для получения полного отчета по вашей работе.
+                    Отчет будет отправлен в чат с ботом.
+                </div>
+            `;
+        }
+
+        // Добавление работы
+        function addWork() {
+            const object = document.getElementById('work-object').value;
+            const date = document.getElementById('work-date').value;
+            const hours = document.getElementById('work-hours').value;
+            
+            if (!object || !date || !hours) {
+                showMessage('error', '❌ Заполните все поля');
+                return;
+            }
+            
+            if (parseFloat(hours) <= 0) {
+                showMessage('error', '❌ Введите корректное количество часов');
+                return;
+            }
+            
+            sendDataToBot('add_work', {
+                object_id: object,
+                date: date,
+                hours: parseFloat(hours)
+            });
+            
+            // Очищаем форму
+            document.getElementById('work-hours').value = '';
+        }
+
+        // Добавление заметки
+        function addNote() {
+            const text = document.getElementById('note-text').value;
+            const date = document.getElementById('note-date').value;
+            
+            if (!text.trim()) {
+                showMessage('error', '❌ Введите текст заметки');
+                return;
+            }
+            
+            sendDataToBot('add_note', {
+                text: text.trim(),
+                date: date
+            });
+            
+            // Очищаем поле текста
+            document.getElementById('note-text').value = '';
+        }
+
+        // Генерация отчета
+        function generateReport() {
+            sendDataToBot('get_report');
         }
 
         // Функция показа сообщений
@@ -534,75 +686,44 @@
             }, 4000);
         }
 
-        // Функции для работы с данными
-        function addWork() {
-            const object = document.getElementById('work-object').value;
-            const date = document.getElementById('work-date').value;
-            const hours = document.getElementById('work-hours').value;
+        // В реальном приложении здесь был бы WebSocket для получения данных от бота
+        // Для демонстрации используем заглушку
+        setTimeout(() => {
+            // Имитация получения данных от бота
+            userData = {
+                objects: [
+                    { id: 1, name: "🏗 Строительство дома", hourly_rate: 500, display_name: "🏗 Строительство дома (500 руб/ч)" },
+                    { id: 2, name: "🔧 Ремонт офиса", hourly_rate: 600, display_name: "🔧 Ремонт офиса (600 руб/ч)" },
+                    { id: 3, name: "🏢 Отделка квартиры", hourly_rate: 700, display_name: "🏢 Отделка квартиры (700 руб/ч)" }
+                ],
+                stats: {
+                    object_count: 3,
+                    shift_count: 8,
+                    total_hours: 64.5,
+                    total_earned: 38500,
+                    total_received: 25000,
+                    balance: 13500
+                },
+                notes: [
+                    { text: "Начало работ по строительству", date: "2024-11-01 10:00:00", display_date: "01.11.2024 10:00" },
+                    { text: "Закупка материалов завершена", date: "2024-10-28 15:30:00", display_date: "28.10.2024 15:30" }
+                ]
+            };
             
-            if (!object || !date || !hours) {
-                showMessage('error', '❌ Заполните все поля');
-                return;
+            // Обновляем интерфейс
+            updateUserInfo();
+            loadObjectsForSelect();
+            
+            showMessage('success', '✅ Данные успешно загружены!');
+        }, 2000);
+
+        function updateUserInfo() {
+            const userInfo = document.getElementById('user-info');
+            if (userData.stats) {
+                userInfo.innerHTML = `📊 Объектов: ${userData.objects.length} | Смен: ${userData.stats.shift_count} | Часов: ${userData.stats.total_hours.toFixed(1)}`;
+                userInfo.style.display = 'block';
             }
-            
-            if (parseFloat(hours) <= 0) {
-                showMessage('error', '❌ Введите корректное количество часов');
-                return;
-            }
-            
-            sendDataToBot('add_work', {
-                object_id: object,
-                date: date,
-                hours: parseFloat(hours)
-            });
         }
-
-        function addNote() {
-            const text = document.getElementById('note-text').value;
-            const date = document.getElementById('note-date').value;
-            
-            if (!text.trim()) {
-                showMessage('error', '❌ Введите текст заметки');
-                return;
-            }
-            
-            sendDataToBot('add_note', {
-                text: text.trim(),
-                date: date
-            });
-            
-            // Очищаем поле текста
-            document.getElementById('note-text').value = '';
-        }
-
-        function getRealStats() {
-            sendDataToBot('get_stats');
-        }
-
-        function getRealObjects() {
-            sendDataToBot('get_objects');
-        }
-
-        function getRealNotes() {
-            sendDataToBot('get_notes');
-        }
-
-        function getRealSalary() {
-            sendDataToBot('get_salary');
-        }
-
-        function generateReport() {
-            sendDataToBot('get_report');
-        }
-
-        // Обработчики событий Telegram Web App
-        tg.onEvent('viewportChanged', (event) => {
-            console.log('Viewport changed:', event);
-        });
-
-        tg.onEvent('themeChanged', (event) => {
-            console.log('Theme changed:', event);
-        });
     </script>
 </body>
 </html>
